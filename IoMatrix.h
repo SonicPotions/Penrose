@@ -10,16 +10,15 @@
 #define IOMATRIX_H_
 #include <avr/io.h>
 
-//extern uint16_t io_buttonState;	//state of the 12 IO buttons
-extern uint16_t io_ledState;		//state of the 13 LEDs
-extern uint16_t io_lastButtonState;
-extern uint8_t io_activeStep;		//current active quantisation step
-
 void io_init();
 //one circle trough the whole LED matrix
-void io_tickLed();
+void io_processLed();
 //scan all buttons
-void io_tickButtons();
+void io_processButtons();
+
+uint16_t io_getActiveSteps();
+void io_setActiveSteps(uint16_t val);
+void io_setCurrentQuantizedValue(uint8_t value);
 
 
 #endif /* IOMATRIX_H_ */
