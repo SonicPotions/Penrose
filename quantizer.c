@@ -20,7 +20,7 @@ void gateOut(uint8_t onOff);
 
 volatile uint8_t lastQuantValue = 0;
 volatile uint8_t gateTimer = 0;
-uint8_t lastTriggerValue = 0;
+//uint8_t lastTriggerValue = 0;
 
 #define TRIGGER_INPUT_PIN		PD7
 #define TRIGGER_INPUT_IN_PORT		PIND
@@ -33,7 +33,7 @@ uint8_t lastTriggerValue = 0;
 
 //#define GET_SWITCH			(SWITCH_IN_PORT & (1<<SWITCH_PIN))
 
-#define TRIGGER_ACTIVE			(  (TRIGGER_INPUT_IN_PORT & (1<<TRIGGER_INPUT_PIN))==0 )
+//#define TRIGGER_ACTIVE			(  (TRIGGER_INPUT_IN_PORT & (1<<TRIGGER_INPUT_PIN))==0 )
 
 //#define GATE_OUT_PIN			PC5
 //#define GATE_OUT_PORT			PORTC
@@ -84,7 +84,6 @@ void init()
     //read last button state from eeprom
     io_setActiveSteps( eeprom_ReadBuffer());
     
-    
     sei();
 }
 //-----------------------------------------------------------
@@ -96,8 +95,6 @@ void process()
 	{
 		lastQuantValue = quantValue;
 		mcp4802_outputData(quantValue,0);
-		gateOut(1);
-		gateTimer=0;
 	}
 }
 //-----------------------------------------------------------
@@ -123,16 +120,14 @@ uint8_t quantizeValue(uint16_t input)
 	int i=0;
 	for(;i<13;i++)
 	{
-		if( ((1<<  ((note+i)%12) ) & io_getActiveSteps()) != 0) break;
+	  if( ((1<<  ((note+i)%12) ) & io_getActiveSteps()) != 0) break;
 	}
 	
 	if(i!=12)
 	{
-		note = note+i;
-		note %= 12;
+	  note = note+i;
+	  note %= 12;
 	}	
-	
-	
 	
 	quantValue = octave*12+note;
 	
@@ -142,60 +137,23 @@ uint8_t quantizeValue(uint16_t input)
 	
 }
 //-----------------------------------------------------------
-//controls the gate out jack
-void gateOut(uint8_t onOff)
-{
-	//onOff?
-	if(onOff)
-	{
-		PORTC |= (1<<PC5);
-	} else {
-		PORTC &= ~(1<<PC5);
-	}
-	
-}
-//-----------------------------------------------------------
-//-----------------------------------------------------------
 int main(void)
 {
-	init();
+    init();
 
     while(1)
     {
-		uint8_t switchValue = GATE_IN_CONNECTED;
+	if( !GATE_IN_CONNECTED )
+	{
+	  //no gate cable plugged in
+	  //continuous mode
+	  process();
+	}		
 		
-		for(int i=0;i<20;i++)
-		{
-			
-			//output new value if enable pin is high
-			uint8_t triggerValue = TRIGGER_ACTIVE;
-		
-		/*
-			if( ((switchValue) && (lastTriggerValue != triggerValue)) || (!switchValue)   )
-			{
-				lastTriggerValue = triggerValue;
-				if(!triggerValue)
-				{
-					process();
+	//handle IOs (buttons + LED)		
+	io_processButtons();
+	io_processLed();					
 
-				}	
-			}		
-			*/
-				
-			//handle IOs (buttons + LED)		
-			io_processButtons();
-			io_processLed();
-		
-			//turn off gate again
-			//would be better in a fixed timer routine for fixed gate length
-			if(gateTimer>=10)
-			{
-				gateOut(0);
-			} else
-			{
-				gateTimer++;
-			}						
-		}			
     }
 }
 //-----------------------------------------------------------
