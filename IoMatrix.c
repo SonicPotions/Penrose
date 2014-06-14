@@ -24,8 +24,10 @@
 
 #define SWITCH_INPUT_12		PINB
 #define SWITCH_DDR_12		DDRB
+#define SWITCH_PORT_12		PORTB
 #define SWITCH_INPUT_3		PINC
 #define SWITCH_DDR_3		DDRC
+#define SWITCH_PORT_3		PORTC
 
 
 // ------------ LEDs ------------
@@ -85,6 +87,17 @@ void io_init()
   //all LED pins as inputs => off
   LED_DDR_13 &= ~(  (1<<LED_1_PIN) | (1<<LED_2_PIN) | (1<<LED_3_PIN)  );
   LED_DDR_46 &= ~(  (1<<LED_4_PIN) | (1<<LED_5_PIN) | (1<<LED_6_PIN)  );
+  
+  //all buttons rows as inputs
+  SWITCH_DDR_12 &= ~(  (1<<SWITCH_ROW1_PIN) | (1<<SWITCH_ROW2_PIN) );
+  SWITCH_DDR_3 &= ~(1<<SWITCH_ROW3_PIN);
+  //row pullups on
+  SWITCH_PORT_12 |= (1<<SWITCH_ROW1_PIN) | (1<<SWITCH_ROW2_PIN);
+  SWITCH_PORT_3 |= (1<<SWITCH_ROW3_PIN);
+  
+  //all buttown columns as outputs, state low
+  COL_DDR |= (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN);
+  COL_PORT &= ~((1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN));
 };
 //-----------------------------------------------------------
 uint16_t io_getActiveSteps()
@@ -100,54 +113,6 @@ void io_setActiveSteps(uint16_t val)
 void io_setCurrentQuantizedValue(uint8_t value)
 {
   io_activeStep = value;
-}
-//-----------------------------------------------------------
-#if 0
-void io_setAllLedPins(uint8_t onOff)
-{
-	if(onOff)
-	{
-		//all pins on
-		LED_PORT |= ( (1<<LED_ROW1_PIN) | (1<<LED_ROW2_PIN) | (1<<LED_ROW3_PIN) );
-	} 
-	else
-	{
-		//all pins off
-		LED_PORT &= ~( (1<<LED_ROW1_PIN) | (1<<LED_ROW2_PIN) | (1<<LED_ROW3_PIN) );
-	}		
-}
-#endif
-//-----------------------------------------------------------
-void io_setAllColPins(uint8_t onOff)
-{
-	if(onOff)
-	{
-		//all pins on
-		COL_PORT |= ( (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) ); //set all col pins
-	} 
-	else
-	{
-		//all pins off
-		COL_PORT &= ~( (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) ); //clear all col pins
-	}		
-}
-//-----------------------------------------------------------
-#if 0
-void io_setAllRowsHighZ()
-{
-	//DDR as input
-	LED_DDR &= ~(  (1<<LED_ROW1_PIN) | (1<<LED_ROW2_PIN) | (1<<LED_ROW3_PIN) );
-	//No Pullup
-	LED_PORT &= ~( (1<<LED_ROW1_PIN) | (1<<LED_ROW2_PIN) | (1<<LED_ROW3_PIN) );
-}
-#endif
-//-----------------------------------------------------------
-void io_setAllColHighZ()
-{
-	//DDR as input
-	COL_DDR &= ~( (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) );
-	//No Pullup
-	COL_PORT &= ~( (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) );
 }
 //-----------------------------------------------------------
 void turnAllLedsOff()
@@ -242,61 +207,56 @@ void io_processLed()
 //read button matrix 
 void io_processButtons()
 {
-#if 0
 	uint8_t col;
 	uint8_t row;
+	uint8_t i=0;
+	uint16_t val;
 	
-	SWITCH_DDR &= ~(1<<SWITCH_ROW1_PIN) | (1<<SWITCH_ROW2_PIN) | (1<<SWITCH_ROW3_PIN);
-	
-	io_setAllColHighZ();
-	//COL_DDR |= (1<<(COL1_PIN)) | (1<<(COL2_PIN)) | (1<<(COL3_PIN)) | (1<<(COL4_PIN)) ;
-	io_setAllColPins(1);
-	
-	io_setAllRowsHighZ();
-	
-	
-	for(int i=0;i<12;i++)
+	for(row=0;row<3;row++)
 	{
-		row = i%3;
-		col = i/3;
-		//selected column low
-		COL_DDR |=  (1<<(COL1_PIN+col));
-		COL_PORT &= ~(1<<(COL1_PIN+col));
+	  for(col=0;col<4;col++)
+	  {
+		//all columns on
+		COL_PORT |= ( (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) );
+		//pin low for active column
+		COL_PORT &= ~(1<<col);
 		
-		
-		nop();
-		nop();
-		nop();
-	//	_delay_us(1);
-		//read selected row
-		uint16_t val = (  SWITCH_INPUT&(1<<(SWITCH_ROW1_PIN+row))  ) == 0;
-				//SWITCH_DDR |= (1<<SWITCH_ROW1_PIN) | (1<<SWITCH_ROW2_PIN) | (1<<SWITCH_ROW3_PIN);
-		//io_setAllColHighZ();
-			//COL_DDR |= (1<<(COL1_PIN)) | (1<<(COL2_PIN)) | (1<<(COL3_PIN)) | (1<<(COL4_PIN)) ;
-	io_setAllColPins(1);
-	
-	
-		//val = 1-val;
-		//val = val << i;
-		
-		//continue;
-		
-		if(   (io_lastButtonState&(1<<i))   != val<<i   )
+		//read active row input
+		switch(row)
 		{
+		  case 0:
+		      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW1_PIN) ) != 0;
+		      break;
+		  
+		  case 1:
+		      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW2_PIN) ) != 0;
+		      break;
+		    
+		  case 2:
+		      val = (SWITCH_INPUT_3 & (1<<SWITCH_ROW3_PIN) ) != 0;
+		      break;
+		}
+	    
+		//check if the button changed its state since the last call
+		if(   (io_lastButtonState&(1<<i))   != (val<<i)   )
+		{
+			//update state memory
 			io_lastButtonState &= ~(1<<i);
 			io_lastButtonState |=val<<i;
-			//toggle state
+			//toggle LED
 			if(val)
 			{
-			  if(!(io_ledState&(1<<i)))
+			  if((io_ledState&(1<<i)))
 			  {
-				  io_ledState |= 1<<i;
-			  } else {
-				  io_ledState &= ~(1<<i);
+			    io_ledState |= 1<<i;
+			  } else 
+			  {
+			    io_ledState &= ~(1<<i);
 			  }
 			}
-		}			
+		}
+		i++;
+	  }
 	}	
-#endif
 };
 //-----------------------------------------------------------
