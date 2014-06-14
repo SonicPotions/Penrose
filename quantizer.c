@@ -22,24 +22,24 @@ volatile uint8_t gateTimer = 0;
 uint8_t lastTriggerValue = 0;
 
 #define TRIGGER_INPUT_PIN		PD7
-#define TRIGGER_INPUT_IN_PORT	PIND
+#define TRIGGER_INPUT_IN_PORT		PIND
 #define TRIGGER_INPUT_PORT		PORTD
 
-#define SWITCH_PIN				PB2
-#define SWITCH_PORT				PORTB
-#define SWITCH_IN_PORT			PINB
-#define SWITCH_DDR				DDRB
+#define SWITCH_PIN			PC4
+#define SWITCH_PORT			PORTC
+#define SWITCH_IN_PORT			PINC
+#define SWITCH_DDR			DDRC
 
-//#define GET_SWITCH				(SWITCH_IN_PORT & (1<<SWITCH_PIN))
+//#define GET_SWITCH			(SWITCH_IN_PORT & (1<<SWITCH_PIN))
 
 #define TRIGGER_ACTIVE			(  (TRIGGER_INPUT_IN_PORT & (1<<TRIGGER_INPUT_PIN))==0 )
 
-#define GATE_OUT_PIN			PC5
-#define GATE_OUT_PORT			PORTC
+//#define GATE_OUT_PIN			PC5
+//#define GATE_OUT_PORT			PORTC
 
 
 #define INPUT_VOLTAGE			5.f	//Volt
-#define OCTAVES					12.f	//octaves
+#define OCTAVES				12.f	//octaves
 #define VOLT_PER_OCTAVE			(INPUT_VOLTAGE/OCTAVES)
 #define VOLT_PER_NOTE			(VOLT_PER_OCTAVE/12.f)
 #define VOLT_PER_ADC_STEP		(INPUT_VOLTAGE/1024.f)
@@ -78,11 +78,18 @@ uint8_t readSwitch()
 void init()
 {
 	
-		//switch 
+  /*
+	//switch 
 	//output to zero!!! (because switch can connect it to gnd)
 	SWITCH_PORT &= ~(1<<SWITCH_PIN);
 	//switch output (for dumb avr spi master problem with SS pin)
 	SWITCH_DDR |= (1<<SWITCH_PIN);
+	*/
+  
+  	//switch input
+	SWITCH_DDR &= ~(1<<SWITCH_PIN);
+	//pull-up an
+	SWITCH_PORT |= (1<<SWITCH_PIN);
 	
 	mcp4802_init();
 	//SPCR &= ~(1<<SPE); //disable SPI -> switch ss input problem

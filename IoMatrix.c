@@ -5,7 +5,7 @@
  *  Author: Julian
  */ 
 #include "IoMatrix.h"
-#include <util\delay.h>
+#include <util/delay.h>
 
 #define COL1_PIN		PD0
 #define COL2_PIN		PD1
