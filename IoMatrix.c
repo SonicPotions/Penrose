@@ -6,6 +6,7 @@
  */ 
 #include "IoMatrix.h"
 #include <util/delay.h>
+#include <avr/pgmspace.h> 
 
 
 // ---------- Switches ----------
@@ -31,7 +32,7 @@
 
 #define LED_1_PIN		PC1
 #define LED_2_PIN		PC2
-#define LED_3_PIN		PC3
+#define	LED_3_PIN		PC3
 #define LED_4_PIN		PD4
 #define LED_5_PIN		PD5
 #define LED_6_PIN		PD6
@@ -45,13 +46,45 @@
 #define nop() \
    asm volatile ("nop")
 
+/*
+led	pin A	Pin B
+0	1	2
+1	1	3
+2	1	4
+3	2	3
+4	2	4
+5	2	5
+6	3	4
+7	3	5
+8	3	6
+9 	4	5
+10	4	6
+11	5	6
+*/
+static const uint8_t ledPinArray[12][2] PROGMEM = {
+  {LED_1_PIN,LED_2_PIN},
+  {LED_1_PIN,LED_3_PIN},
+  {LED_1_PIN,LED_4_PIN},
+  {LED_2_PIN,LED_3_PIN},
+  {LED_2_PIN,LED_4_PIN},
+  {LED_2_PIN,LED_5_PIN},
+  {LED_3_PIN,LED_4_PIN},
+  {LED_3_PIN,LED_5_PIN},
+  {LED_3_PIN,LED_6_PIN},
+  {LED_4_PIN,LED_5_PIN},
+  {LED_4_PIN,LED_6_PIN},
+  {LED_5_PIN,LED_6_PIN},
+};
+   
 static uint16_t io_ledState=0x00;		//state of the 12 LEDs == activated notes
 static uint8_t io_activeStep=0;			//current active quantisation step == currently played note
 static uint16_t io_lastButtonState=0;
 //-----------------------------------------------------------
 void io_init()
 {
-  LED_DDR |= (  (1<<LED_ROW1_PIN) | (1<<LED_ROW2_PIN) | (1<<LED_ROW3_PIN)  );
+  //all LED pins as inputs => off
+  LED_DDR_13 &= ~(  (1<<LED_1_PIN) | (1<<LED_2_PIN) | (1<<LED_3_PIN)  );
+  LED_DDR_46 &= ~(  (1<<LED_4_PIN) | (1<<LED_5_PIN) | (1<<LED_6_PIN)  );
 };
 //-----------------------------------------------------------
 uint16_t io_getActiveSteps()
@@ -69,10 +102,10 @@ void io_setCurrentQuantizedValue(uint8_t value)
   io_activeStep = value;
 }
 //-----------------------------------------------------------
+#if 0
 void io_setAllLedPins(uint8_t onOff)
 {
 	if(onOff)
-	//if(0)
 	{
 		//all pins on
 		LED_PORT |= ( (1<<LED_ROW1_PIN) | (1<<LED_ROW2_PIN) | (1<<LED_ROW3_PIN) );
@@ -83,6 +116,7 @@ void io_setAllLedPins(uint8_t onOff)
 		LED_PORT &= ~( (1<<LED_ROW1_PIN) | (1<<LED_ROW2_PIN) | (1<<LED_ROW3_PIN) );
 	}		
 }
+#endif
 //-----------------------------------------------------------
 void io_setAllColPins(uint8_t onOff)
 {
@@ -98,6 +132,7 @@ void io_setAllColPins(uint8_t onOff)
 	}		
 }
 //-----------------------------------------------------------
+#if 0
 void io_setAllRowsHighZ()
 {
 	//DDR as input
@@ -105,6 +140,7 @@ void io_setAllRowsHighZ()
 	//No Pullup
 	LED_PORT &= ~( (1<<LED_ROW1_PIN) | (1<<LED_ROW2_PIN) | (1<<LED_ROW3_PIN) );
 }
+#endif
 //-----------------------------------------------------------
 void io_setAllColHighZ()
 {
@@ -114,107 +150,99 @@ void io_setAllColHighZ()
 	COL_PORT &= ~( (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) );
 }
 //-----------------------------------------------------------
+void turnAllLedsOff()
+{
+  //all pins low / no pullup
+  LED_PORT_13 &= ~( (1<<LED_1_PIN) | (1<<LED_2_PIN) | (1<<LED_3_PIN) );
+  LED_PORT_46 &= ~( (1<<LED_4_PIN) | (1<<LED_5_PIN) | (1<<LED_6_PIN) );
+  
+  //all LED pins as inputs => off
+  LED_DDR_13 &= ~(  (1<<LED_1_PIN) | (1<<LED_2_PIN) | (1<<LED_3_PIN)  );
+  LED_DDR_46 &= ~(  (1<<LED_4_PIN) | (1<<LED_5_PIN) | (1<<LED_6_PIN)  );
+}
+//-----------------------------------------------------------
+void turnLedOn(uint16_t ledNr, uint8_t colour)
+{
+  //get the needed pins from the LED array
+  uint8_t pinA = pgm_read_byte(&ledPinArray[ledNr][0]);
+  uint8_t pinB = pgm_read_byte(&ledPinArray[ledNr][1]);
+  
+  if(colour)
+  {
+    //colour 2 -> A=0, B=1
+    if(pinA > LED_3_PIN)
+    {
+      LED_DDR_46 	|= (1<<pinA);	//pin as output
+      LED_PORT_46	&= ~(1<<pinA);	//pin low
+    }
+    else
+    {
+      LED_DDR_13	|= (1<<pinA);
+      LED_PORT_13	&= ~(1<<pinA);
+    }
+    
+    if(pinB > LED_3_PIN)
+    {
+      LED_DDR_46	|= (1<<pinB);	//pin as output
+      LED_PORT_46 	|= (1<<pinB);	//pin high
+    }
+    else
+    {
+      LED_DDR_13	|= (1<<pinB);
+      LED_PORT_13	|= (1<<pinB);
+    }
+  }
+  else
+  {
+    //colour 1 -> A out, B in
+    if(pinA > LED_3_PIN)
+    {
+      LED_DDR_46 	|= (1<<pinA);	//pin as output
+      LED_PORT_46	|= (1<<pinA);	//pin high
+    }
+    else
+    {
+      LED_DDR_13	|= (1<<pinA);
+      LED_PORT_13	|= (1<<pinA);
+    }
+    
+    if(pinB > LED_3_PIN)
+    {
+      LED_DDR_46	|= (1<<pinB);	//pin as output
+      LED_PORT_46 	&= ~(1<<pinB);	//pin low
+    }
+    else
+    {
+      LED_DDR_13	|= (1<<pinB);
+      LED_PORT_13	&= ~(1<<pinB);
+    }    
+  }
+}
+//-----------------------------------------------------------
 //one circle trough the whole LED matrix
 void io_processLed()
 {
-	uint8_t col;
-	uint8_t row;
-	//--- current quantized note color 1 ---
-	
-	/*
-	led	row	col
-	0	0	0
-	1	1	0
-	2	2	0
-	3	0	1
-	4	1	1
-	5	2	1
-	6	0	2
-	7	1	2
-	8	2	2
-	9 	0	3
-	10	1	3
-	11	2	3
-	*/
-	
-	row = io_activeStep%3;
-	col = io_activeStep/3;
-
-
-#if 1	
-	//LED_DDR |= (  (1<<LED_ROW1_PIN) | (1<<LED_ROW2_PIN) | (1<<LED_ROW3_PIN)  );
-	io_setAllRowsHighZ();
-	io_setAllColHighZ();
-	//io_setAllLedPins(1);
-	//selected column is low
-	COL_DDR |= (1<<(COL1_PIN+col));		//selected col pin as output
-	COL_PORT &= ~(1<<(COL1_PIN+col));	//selected col is high
-	
-	//selected row is hi
-	LED_DDR |=   (1<<(LED_ROW1_PIN+row));
-	LED_PORT |= (1<<(LED_ROW1_PIN + row));
-	_delay_ms(1);
-	
-#endif
-	//--- active notes color 2 ---
-	io_setAllRowsHighZ();
-	io_setAllLedPins(0);
-	//LED_DDR |= (  (1<<LED_ROW1_PIN) | (1<<LED_ROW2_PIN) | (1<<LED_ROW3_PIN)  );
-	//io_setAllLedPins(0);
-	
-	
-	//alle cols output
-	//COL_DDR |= ( (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) );
-	io_setAllColHighZ();
-	io_setAllColPins(0);
-	
-	
-	for(int i=0;i<12;i++)
-	{
-		//if step is activated
-		if(io_ledState & (1<<i))
-		{
-			row = i%3;
-			col = i/3;
-	
-			
-
-			//LED_DDR |= (  (1<<LED_ROW1_PIN) | (1<<LED_ROW2_PIN) | (1<<LED_ROW3_PIN)  );
-			
-			//selected column is high
-			COL_DDR |=  (1<<(COL1_PIN+col));
-			COL_PORT |= (1<<(COL1_PIN+col));	//selected col is low
-			//selected row is low
-			LED_DDR |= 1<<(LED_ROW1_PIN + row);
-			LED_PORT &= ~(1<<(LED_ROW1_PIN + row));
-			_delay_ms(1);
-			
-			//io_setAllColPins(0);
-			io_setAllColHighZ();
-			
-			io_setAllRowsHighZ();
-			io_setAllLedPins(0);
-			//_delay_ms(500);
-		}
-	
-				
-	}		
-	
-		io_setAllColHighZ();
-			
-			io_setAllRowsHighZ();
-			io_setAllLedPins(0);
-//	LED_DDR |= (  (1<<LED_ROW1_PIN) | (1<<LED_ROW2_PIN) | (1<<LED_ROW3_PIN)  );
-//	COL_DDR |= (1<<(COL1_PIN)) | (1<<(COL2_PIN)) | (1<<(COL3_PIN)) | (1<<(COL4_PIN)) ;		//selected col pin as output
-	
-//	io_setAllLedPins(1);
-//	io_setAllColPins(0);
+  for(int i=0; i<12; i++)
+  {
+    turnAllLedsOff();
+    
+    if(i==io_activeStep)
+    {
+      //this step is currently played => set color 1
+      turnLedOn(i,0);
+    } 
+    else if ( (io_ledState & (1<<i)) > 0)
+    {
+      //step is active => colour 2
+      turnLedOn(i,1);
+    }
+  }
 };
 //-----------------------------------------------------------
 //read button matrix 
 void io_processButtons()
 {
-	
+#if 0
 	uint8_t col;
 	uint8_t row;
 	
@@ -267,11 +295,8 @@ void io_processButtons()
 				  io_ledState &= ~(1<<i);
 			  }
 			}
-		}	
-		//	_delay_ms(1);
-		
-
-	
-				
-	}		
+		}			
+	}	
+#endif
 };
+//-----------------------------------------------------------
