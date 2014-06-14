@@ -95,7 +95,7 @@ void process()
 	if(lastQuantValue != quantValue)
 	{
 		lastQuantValue = quantValue;
-		mcp4802_outputData(0,quantValue);
+		mcp4802_outputData(quantValue,0);
 		gateOut(1);
 		gateTimer=0;
 	}
