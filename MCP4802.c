@@ -33,13 +33,13 @@ void mcp4802_init()
 };
 
 /*
-The write command is initiated by driving the CSpin
+The write command is initiated by driving the CS pin
 low, followed by clocking the four Configuration bits and
 the 12 data bits into the SDI pin on the rising edge of
 SCK. The CSpin is then raised, causing the data to be
-latched into the selected DAC’s input registers.
+latched into the selected DACs input registers.
 
-bit 15 A/B:DACAor DACBSelection bit
+bit 15 A/B:DAC A or DAC B Selection bit
 1= Write to DACB
 0= Write to DACA
 
@@ -63,10 +63,10 @@ void mcp4802_outputData(const uint8_t out1, const uint8_t out2)
 	//CS low -> start write cmd
 	MCP_CS_PORT &= ~(1<<MCP_CS_PIN);
 	
-	//data out A (not implemented)
+	//data out B (not implemented)
 	
-	//data for output B
-	uint16_t data = (DAC_B<<15) | (GAIN_X2<<13) | (CHANNEL_ACTIVE<<12) | (out2<<4);
+	//data for output A
+	uint16_t data = (DAC_A<<15) | (GAIN_X2<<13) | (CHANNEL_ACTIVE<<12) | (out1<<4);
 	SPI_transmit(data>>8);		//transmit MSB
 	SPI_transmit(data&0xff);	//transmit LSB
 
