@@ -21,7 +21,7 @@
 
 static uint16_t dataBuffer[BUFFER_SIZE] EEMEM;		// place to store the note data
 static uint8_t statusBuffer[BUFFER_SIZE] EEMEM;		// place to keep the status info (next write position)
-static currentEepromAddress = 0;
+static uint8_t currentEepromAddress = 0;
 
 //-----------------------------------------------------------
 uint8_t findCurrentEepromAddr()

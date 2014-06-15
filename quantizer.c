@@ -2,7 +2,7 @@
  * quantizer.c
  *
  * Created: 14.06.2013 15:53:19
- *  Author: Julian
+ *  Author: Julian Schmidt
  */ 
 
 #include <avr/io.h>
@@ -11,6 +11,7 @@
 #include "adc.h"
 #include "IoMatrix.h"
 #include "eeprom.h"
+#include "timebase.h"
 #include <util/delay.h> 
 #include <avr/interrupt.h>  
 
@@ -20,7 +21,6 @@ void gateOut(uint8_t onOff);
 
 volatile uint8_t lastQuantValue = 0;
 volatile uint8_t gateTimer = 0;
-//uint8_t lastTriggerValue = 0;
 
 #define TRIGGER_INPUT_PIN		PD7
 #define TRIGGER_INPUT_IN_PORT		PIND
@@ -30,14 +30,6 @@ volatile uint8_t gateTimer = 0;
 #define SWITCH_PORT			PORTC
 #define SWITCH_IN_PORT			PINC
 #define SWITCH_DDR			DDRC
-
-//#define GET_SWITCH			(SWITCH_IN_PORT & (1<<SWITCH_PIN))
-
-//#define TRIGGER_ACTIVE			(  (TRIGGER_INPUT_IN_PORT & (1<<TRIGGER_INPUT_PIN))==0 )
-
-//#define GATE_OUT_PIN			PC5
-//#define GATE_OUT_PORT			PORTC
-
 
 #define INPUT_VOLTAGE			5.f	//Volt
 #define OCTAVES				12.f	//octaves
@@ -58,14 +50,10 @@ void init()
     //trigger is input with no pullup
     TRIGGER_INPUT_PORT &= ~(1<<TRIGGER_INPUT_PIN);
 
+    timer_init();
     mcp4802_init();
     adc_init();
     io_init();
-
-
-
-
-
 
     /*
     Set up Interrupt for trigger input 
@@ -95,10 +83,12 @@ void process()
 	{
 		lastQuantValue = quantValue;
 		mcp4802_outputData(quantValue,0);
+		//start gate off timer
+		timer0_start();
 	}
 }
 //-----------------------------------------------------------
-ISR(SIG_PIN_CHANGE2)
+ISR(PCINT2_vect)
 {
     if(bit_is_clear(PIND,7)) //only rising edge
     {
@@ -152,7 +142,8 @@ int main(void)
 		
 	//handle IOs (buttons + LED)		
 	io_processButtons();
-	io_processLed();					
+	io_processLed();	
+	checkAutosave();
 
     }
 }

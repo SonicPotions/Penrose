@@ -2,7 +2,10 @@
  * MCP4802.c
  *
  * Created: 14.06.2013 15:58:55
- *  Author: Julian
+ *  Author: Julian Schmidt
+ * 
+ * Driver works for MCP4801 and 4802
+ * needs minor mods for propper 2 channel output
  */ 
 #include "MCP4802.h"
 #include "spi.h"
@@ -58,7 +61,7 @@ bit 11-0 D11:D0:DAC Input Data bits. Bit x is ignored.
 */
 void mcp4802_outputData(const uint8_t out1, const uint8_t out2)
 {
-	//LDAC HIGH (no dac update)
+	//LDAC HIGH (no dac update, gate low)
 	MCP_CS_PORT |= (1<<MCP_LDAC_PIN);
 	//CS low -> start write cmd
 	MCP_CS_PORT &= ~(1<<MCP_CS_PIN);
@@ -74,6 +77,6 @@ void mcp4802_outputData(const uint8_t out1, const uint8_t out2)
 	// CS high (end write)
 	MCP_CS_PORT |= (1<<MCP_CS_PIN);
 	
-	//LDAC low (update dac outputs)
+	//LDAC low (update dac outputs, gate high)
 	MCP_CS_PORT &= ~(1<<MCP_LDAC_PIN);
 };
