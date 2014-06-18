@@ -224,7 +224,7 @@ void io_processButtons()
 	}
 };
 //-----------------------------------------------------------
-uint8_t io_isButton1Pushed(uint8_t buttonNr)
+uint8_t io_isButtonPushed(uint8_t buttonNr)
 {
   uint8_t row = buttonNr/4; // [0:2]
   uint8_t col = buttonNr%4; // [0:3]

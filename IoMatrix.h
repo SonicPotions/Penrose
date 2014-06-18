@@ -50,12 +50,10 @@ void io_init();
 void io_processLed();
 //scan all buttons
 void io_processButtons();
-
 uint16_t io_getActiveSteps();
 void io_setActiveSteps(uint16_t val);
 void io_setCurrentQuantizedValue(uint8_t value);
-
-uint8_t io_isButton1Pushed(uint8_t buttonNr);
+uint8_t io_isButtonPushed(uint8_t buttonNr);
 
 
 #endif /* IOMATRIX_H_ */
