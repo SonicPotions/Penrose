@@ -22,8 +22,6 @@
 //-----------------------------------------------------------
 static uint16_t dataBuffer[BUFFER_SIZE] EEMEM;		// place to store the note data -> 2x128 = 256 bytes
 static uint8_t statusBuffer[BUFFER_SIZE] EEMEM;		// place to keep the status info (next write position) -> 128 bytes
-static uint16_t calibrationData[2] EEMEM;		// place for the calibration data -> 4 bytes
-							//eeprom usage = 256 + 128 + 4 = 388 Bytes
 static uint8_t currentEepromAddress = 0;
 
 //-----------------------------------------------------------
