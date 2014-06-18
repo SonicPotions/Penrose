@@ -82,7 +82,7 @@ DEFINES += -DF_CPU=20000000UL -D__PROG_TYPES_COMPAT__
 CFLAGS += $(DEFINES) $(INCLUDES)
 CFLAGS += -O$(AVR_OPTIMIZE)
 #CFLAGS += -Wall -Wextra -Wconversion -c -funsigned-char -funsigned-bitfields -ffast-math -freciprocal-math -ffunction-sections -fdata-sections -fpack-struct -fshort-enums
-CFLAGS += -Wall -Wextra -c -funsigned-char -funsigned-bitfields 
+CFLAGS += -Wall -Wextra -c -funsigned-char -funsigned-bitfields -ffast-math -freciprocal-math -ffunction-sections -fdata-sections -fpack-struct -fshort-enums
 ifeq ($(PEDANTIC),1)
 CFLAGS += -Werror
 endif
