@@ -41,7 +41,7 @@ static const uint8_t ledPinArray[12][2] PROGMEM = {
   {LED_5_PIN,LED_6_PIN},
 };
 //-----------------------------------------------------------
-static uint16_t io_ledState=0xffff;		//state of the 12 LEDs == activated notes
+static uint16_t io_ledState=0xfff;		//state of the 12 LEDs == activated notes
 static uint8_t io_activeStep=2;			//current active quantisation step == currently played note
 static uint16_t io_lastButtonState=0x00;
 //-----------------------------------------------------------
@@ -235,7 +235,7 @@ uint8_t io_isButton1Pushed(uint8_t buttonNr)
   COL_PORT &= ~(1<<col);
   
   //read active row input
-  uint8_t val;
+  uint8_t val = 0;
   switch(row)
   {
   case 0:
