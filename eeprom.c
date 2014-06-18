@@ -88,3 +88,7 @@ void eeprom_WriteBuffer(uint16_t data)
    eeprom_write_byte(&statusBuffer[currentEepromAddress],status);
 }
 //-----------------------------------------------------------
+void eeprom_saveCalibrationData(uint8_t gain, uint8_t offset)
+{
+}
+//-----------------------------------------------------------

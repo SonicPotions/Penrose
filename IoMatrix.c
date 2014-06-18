@@ -224,3 +224,34 @@ void io_processButtons()
 	}
 };
 //-----------------------------------------------------------
+uint8_t io_isButton1Pushed(uint8_t buttonNr)
+{
+  uint8_t row = buttonNr/4; // [0:2]
+  uint8_t col = buttonNr%4; // [0:3]
+
+  //all columns on
+  COL_PORT |= ( (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) );
+  //pin low for active column
+  COL_PORT &= ~(1<<col);
+  
+  //read active row input
+  uint8_t val;
+  switch(row)
+  {
+  case 0:
+      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW1_PIN) ) == 0;
+      break;
+
+  case 1:
+      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW2_PIN) ) == 0;
+      break;
+    
+  case 2:
+      val = (SWITCH_INPUT_3 & (1<<SWITCH_ROW3_PIN) ) == 0;
+      break;
+  }
+  
+  return val;
+}
+//-----------------------------------------------------------
+

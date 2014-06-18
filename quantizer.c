@@ -73,9 +73,7 @@ void init()
     PCICR |= (1<<PCIE2);   //Enable PCINT2
     PCMSK2 |= (1<<PCINT23); //Trigger on change of PCINT23 (PD7)
     
-    //read last button state from eeprom
-    io_setActiveSteps( eeprom_ReadBuffer());
-        
+       
     sei();
 }
 //-----------------------&= ------------------------------------
@@ -133,6 +131,15 @@ uint8_t quantizeValue(uint16_t input)
 int main(void)
 {
     init();
+    
+    //check if button 12 is held to enter calibration mode
+    if(io_isButton1Pushed(11))
+    {
+      adc_calibration();
+    }
+    
+    //read last button state from eeprom
+    io_setActiveSteps( eeprom_ReadBuffer());
     
     while(1)
     {
