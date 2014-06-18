@@ -20,8 +20,10 @@
 							// thats about 35 years with 1000 saves per day
 							
 //-----------------------------------------------------------
-static uint16_t dataBuffer[BUFFER_SIZE] EEMEM;		// place to store the note data
-static uint8_t statusBuffer[BUFFER_SIZE] EEMEM;		// place to keep the status info (next write position)
+static uint16_t dataBuffer[BUFFER_SIZE] EEMEM;		// place to store the note data -> 2x128 = 256 bytes
+static uint8_t statusBuffer[BUFFER_SIZE] EEMEM;		// place to keep the status info (next write position) -> 128 bytes
+static uint16_t calibrationData[2] EEMEM;		// place for the calibration data -> 4 bytes
+							//eeprom usage = 256 + 128 + 4 = 388 Bytes
 static uint8_t currentEepromAddress = 0;
 
 //-----------------------------------------------------------
@@ -59,7 +61,7 @@ uint8_t findCurrentEepromAddr()
 uint16_t eeprom_ReadBuffer()
 {
   currentEepromAddress = findCurrentEepromAddr();
-  return eeprom_read_word(&dataBuffer[currentEepromAddress]);
+  return eeprom_read_word(&dataBuffer[currentEepromAddress])&0xfff;
 }
 //-----------------------------------------------------------
 void eeprom_WriteBuffer(uint16_t data)
@@ -88,7 +90,19 @@ void eeprom_WriteBuffer(uint16_t data)
    eeprom_write_byte(&statusBuffer[currentEepromAddress],status);
 }
 //-----------------------------------------------------------
-void eeprom_saveCalibrationData(uint8_t gain, uint8_t offset)
+void eeprom_saveCalibrationData(uint16_t gain, int16_t offset)
 {
+  eeprom_write_word(&calibrationData[0],gain);
+  eeprom_write_word(&calibrationData[1],offset);
+}
+//-----------------------------------------------------------
+int16_t eeprom_getCalibrationOffset()
+{
+  return eeprom_read_word(&calibrationData[1]);
+}
+//-----------------------------------------------------------
+uint16_t eeprom_getCalibrationGain()
+{
+  return eeprom_read_word(&calibrationData[0]);
 }
 //-----------------------------------------------------------
