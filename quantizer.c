@@ -109,8 +109,15 @@ uint8_t quantizeValue(uint16_t input)
   }
   
 	//quantize input value to all steps
-	uint8_t quantValue = ((input<<1)-8)/17;//ADC_STEPS_PER_NOTE;
-	quantValue += 1;
+	/* instead of input/ADC_STEPS_PER_NOTE we use the magic number 17 here.
+	 * ADC_STEPS_PER_NOTE = 8.5 which will reult in a rounding error pretty quick
+	 * so we use ADC_STEPS_PER_NOTE * 2 = 17
+	 * we shift the result up by ~ADC_STEPS_PER_NOTE/2 = 8
+	 * to bring the note values (played by keyboard fr example) in the middle of a step, 
+	 * thus increasing the note tracking over several octaves
+	 */
+	uint8_t quantValue = ((input<<1)+8)/17;//ADC_STEPS_PER_NOTE;
+
 	//calculate the current active step
 	const uint8_t octave = quantValue/12;
 	uint8_t note = quantValue-(octave*12);
@@ -140,12 +147,6 @@ uint8_t quantizeValue(uint16_t input)
 int main(void)
 {
     init();
-    
-    //check if button 12 is held to enter calibration mode
-    if(io_isButton1Pushed(11))
-    {
-      adc_calibration();
-    }
     
     //read last button state from eeprom
     io_setActiveSteps( eeprom_ReadBuffer());

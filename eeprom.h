@@ -13,6 +13,3 @@
 
 uint16_t eeprom_ReadBuffer();
 void eeprom_WriteBuffer(uint16_t data);
-void eeprom_saveCalibrationData(uint16_t gain, int16_t offset);
-int16_t eeprom_getCalibrationOffset();
-uint16_t eeprom_getCalibrationGain();

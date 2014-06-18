@@ -90,19 +90,3 @@ void eeprom_WriteBuffer(uint16_t data)
    eeprom_write_byte(&statusBuffer[currentEepromAddress],status);
 }
 //-----------------------------------------------------------
-void eeprom_saveCalibrationData(uint16_t gain, int16_t offset)
-{
-  eeprom_write_word(&calibrationData[0],gain);
-  eeprom_write_word(&calibrationData[1],offset);
-}
-//-----------------------------------------------------------
-int16_t eeprom_getCalibrationOffset()
-{
-  return eeprom_read_word(&calibrationData[1]);
-}
-//-----------------------------------------------------------
-uint16_t eeprom_getCalibrationGain()
-{
-  return eeprom_read_word(&calibrationData[0]);
-}
-//-----------------------------------------------------------
