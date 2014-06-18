@@ -13,7 +13,6 @@
 
 void spi_init(void);
 unsigned char SPI_transmit(unsigned char data);
-
-
+void spi_enable(uint8_t onOff);
 
 #endif /* SPI_H_ */

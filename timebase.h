@@ -12,7 +12,7 @@
 #include <avr/interrupt.h>
 
 #define GATE_LENGTH 10 // [ms] maximum is 12 (=>240, more will not fit into OCR0A and a 16 bit timer must be used)
-#define AUTOSAVE_TIME 30 // [sec]
+#define AUTOSAVE_TIME 15 // [sec]
 
 void timer_init();
 

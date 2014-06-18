@@ -7,47 +7,10 @@
 #include "IoMatrix.h"
 #include <util/delay.h>
 #include <avr/pgmspace.h> 
+#include "spi.h"
+#include "timebase.h"
 
-
-// ---------- Switches ----------
-#define COL1_PIN		PD0
-#define COL2_PIN		PD1
-#define COL3_PIN		PD2
-#define COL4_PIN		PD3
-
-#define COL_PORT		PORTD
-#define COL_DDR			DDRD
-
-#define SWITCH_ROW1_PIN		PB2
-#define SWITCH_ROW2_PIN		PB4
-#define SWITCH_ROW3_PIN		PC5
-
-#define SWITCH_INPUT_12		PINB
-#define SWITCH_DDR_12		DDRB
-#define SWITCH_PORT_12		PORTB
-#define SWITCH_INPUT_3		PINC
-#define SWITCH_DDR_3		DDRC
-#define SWITCH_PORT_3		PORTC
-
-
-// ------------ LEDs ------------
-
-#define LED_1_PIN		PC1
-#define LED_2_PIN		PC2
-#define	LED_3_PIN		PC3
-#define LED_4_PIN		PD4
-#define LED_5_PIN		PD5
-#define LED_6_PIN		PD6
-
-#define LED_PORT_13		PORTC
-#define LED_DDR_13		DDRC
-
-#define LED_PORT_46		PORTD
-#define LED_DDR_46		DDRD
-
-#define nop() \
-   asm volatile ("nop")
-
+//-----------------------------------------------------------
 /*
 led	pin A	Pin B
 0	1	2
@@ -77,10 +40,10 @@ static const uint8_t ledPinArray[12][2] PROGMEM = {
   {LED_4_PIN,LED_6_PIN},
   {LED_5_PIN,LED_6_PIN},
 };
-   
-static uint16_t io_ledState=0x00;		//state of the 12 LEDs == activated notes
-static uint8_t io_activeStep=0;			//current active quantisation step == currently played note
-static uint16_t io_lastButtonState=0;
+//-----------------------------------------------------------
+static uint16_t io_ledState=0xffff;		//state of the 12 LEDs == activated notes
+static uint8_t io_activeStep=2;			//current active quantisation step == currently played note
+static uint16_t io_lastButtonState=0x00;
 //-----------------------------------------------------------
 void io_init()
 {
@@ -88,16 +51,16 @@ void io_init()
   LED_DDR_13 &= ~(  (1<<LED_1_PIN) | (1<<LED_2_PIN) | (1<<LED_3_PIN)  );
   LED_DDR_46 &= ~(  (1<<LED_4_PIN) | (1<<LED_5_PIN) | (1<<LED_6_PIN)  );
   
-  //all buttons rows as inputs
+  //all buttons rows as inputs (attention SS pin used!)
   SWITCH_DDR_12 &= ~(  (1<<SWITCH_ROW1_PIN) | (1<<SWITCH_ROW2_PIN) );
   SWITCH_DDR_3 &= ~(1<<SWITCH_ROW3_PIN);
-  //row pullups on
+  //pullup on
   SWITCH_PORT_12 |= (1<<SWITCH_ROW1_PIN) | (1<<SWITCH_ROW2_PIN);
   SWITCH_PORT_3 |= (1<<SWITCH_ROW3_PIN);
   
-  //all buttown columns as outputs, state low
+  //all buttown columns as outs, state high
   COL_DDR |= (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN);
-  COL_PORT &= ~((1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN));
+  COL_PORT |= ((1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN));
 };
 //-----------------------------------------------------------
 uint16_t io_getActiveSteps()
@@ -188,9 +151,7 @@ void turnLedOn(uint16_t ledNr, uint8_t colour)
 void io_processLed()
 {
   for(int i=0; i<12; i++)
-  {
-    turnAllLedsOff();
-    
+  {    
     if(i==io_activeStep)
     {
       //this step is currently played => set color 1
@@ -201,6 +162,8 @@ void io_processLed()
       //step is active => colour 2
       turnLedOn(i,1);
     }
+     _delay_us(300); //otherwise the LEDs are too dark
+    turnAllLedsOff();
   }
 };
 //-----------------------------------------------------------
@@ -225,15 +188,15 @@ void io_processButtons()
 		switch(row)
 		{
 		  case 0:
-		      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW1_PIN) ) != 0;
+		      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW1_PIN) ) == 0;
 		      break;
 		  
 		  case 1:
-		      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW2_PIN) ) != 0;
+		      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW2_PIN) ) == 0;
 		      break;
 		    
 		  case 2:
-		      val = (SWITCH_INPUT_3 & (1<<SWITCH_ROW3_PIN) ) != 0;
+		      val = (SWITCH_INPUT_3 & (1<<SWITCH_ROW3_PIN) ) == 0;
 		      break;
 		}
 	    
@@ -246,7 +209,8 @@ void io_processButtons()
 			//toggle LED
 			if(val)
 			{
-			  if((io_ledState&(1<<i)))
+			  timer_touchAutosave();
+			  if(!(io_ledState&(1<<i)))
 			  {
 			    io_ledState |= 1<<i;
 			  } else 
@@ -257,6 +221,6 @@ void io_processButtons()
 		}
 		i++;
 	  }
-	}	
+	}
 };
 //-----------------------------------------------------------

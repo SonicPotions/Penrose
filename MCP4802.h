@@ -18,7 +18,7 @@ into the DAC’s output registers (VOUT), and both VOUTA
 and VOUTB are updated at the same time.
 */
 #define MCP_LDAC_PIN	PB1
-
+//-----------------------------------------------------------
 void mcp4802_init();
 void mcp4802_outputData(const uint8_t out1, const uint8_t out2);
 

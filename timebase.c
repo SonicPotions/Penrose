@@ -28,18 +28,18 @@ void timer_init()
 {
     // Timer 0 configuration
   TCCR0A = (1<<WGM01); // CTC Mode
-  //TCCR0B |= (1<<CS02) | (1<<CS00); // Prescaler 1024
+  // TCCR0B |= (1<<CS02) | (1<<CS00); // Prescaler 1024
   // ((20.000.000/1024)/1000) = 19,53125
   OCR0A = 20 * GATE_LENGTH; // => 0,9765625ms
- 
   // Enabel Compare Interrupt 
   TIMSK0 |= (1<<OCIE0A);
+  
+    // Timer 1 (16-bit) configuration
   TCCR1B |= (1<<CS12) | (1<<CS10); //prescaler 1024
   // 20.000.000 / 1024 = 19531,25 = 1 sec
-  // Timer 1 (16-bit) configuration
-  TCCR1A = (1<<WGM12); // CTC Modus
-  
-  OCR1A = 19531; //timer => 999,9872 sec
+  TCCR1B |= (1<<WGM12); // CTC Modus
+  OCR1A = 19531L; //timer => 999,9872 sec
+  TIMSK1 |= (1<<OCIE1A);
 }
 //-----------------------------------------------------------
 void timer0_start()

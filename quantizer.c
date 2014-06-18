@@ -15,16 +15,17 @@
 #include <util/delay.h> 
 #include <avr/interrupt.h>  
 
-
+//-----------------------------------------------------------
 uint8_t quantizeValue(uint16_t input);
 void gateOut(uint8_t onOff);
-
 volatile uint8_t lastQuantValue = 0;
 volatile uint8_t gateTimer = 0;
+//-----------------------------------------------------------
 
 #define TRIGGER_INPUT_PIN		PD7
 #define TRIGGER_INPUT_IN_PORT		PIND
 #define TRIGGER_INPUT_PORT		PORTD
+#define TRIGGER_INPUT_DDR		DDRD
 
 #define SWITCH_PIN			PC4
 #define SWITCH_PORT			PORTC
@@ -39,15 +40,19 @@ volatile uint8_t gateTimer = 0;
 #define ADC_STEPS_PER_NOTE		(VOLT_PER_NOTE/VOLT_PER_ADC_STEP)
 
 
-#define GATE_IN_CONNECTED (SWITCH_IN_PORT & (1<<SWITCH_PIN))
+#define GATE_IN_CONNECTED ((SWITCH_IN_PORT & (1<<SWITCH_PIN))==0)
 //-----------------------------------------------------------
 void init()
 {
+    // power save stuff
+    ACSR |= (1<<ACD); //analog comparator off
+  
     //switch is input with pullup
     SWITCH_DDR &= ~(1<<SWITCH_PIN);
     SWITCH_PORT |= (1<<SWITCH_PIN);
 
     //trigger is input with no pullup
+    TRIGGER_INPUT_DDR &= ~(1<<TRIGGER_INPUT_PIN);
     TRIGGER_INPUT_PORT &= ~(1<<TRIGGER_INPUT_PIN);
 
     timer_init();
@@ -68,16 +73,15 @@ void init()
     PCICR |= (1<<PCIE2);   //Enable PCINT2
     PCMSK2 |= (1<<PCINT23); //Trigger on change of PCINT23 (PD7)
     
-    
     //read last button state from eeprom
     io_setActiveSteps( eeprom_ReadBuffer());
-    
+        
     sei();
 }
-//-----------------------------------------------------------
+//-----------------------&= ------------------------------------
 void process()
 {
-	const uint8_t quantValue = quantizeValue(adc_readAvg(0, 1));
+	const uint8_t quantValue = quantizeValue(adc_read(0));
 	//if the value changed
 	if(lastQuantValue != quantValue)
 	{
@@ -124,27 +128,25 @@ uint8_t quantizeValue(uint16_t input)
 	//store to matrix
 	io_setCurrentQuantizedValue(note);
 	return quantValue*2;
-	
 }
 //-----------------------------------------------------------
 int main(void)
 {
     init();
-
+    
     while(1)
     {
+	//handle IOs (buttons + LED)		
+	io_processButtons();
+	io_processLed();	
+
+	checkAutosave();
 	if( !GATE_IN_CONNECTED )
 	{
 	  //no gate cable plugged in
 	  //continuous mode
 	  process();
-	}		
-		
-	//handle IOs (buttons + LED)		
-	io_processButtons();
-	io_processLed();	
-	checkAutosave();
-
+	}	
     }
 }
 //-----------------------------------------------------------

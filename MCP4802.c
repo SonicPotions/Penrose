@@ -9,7 +9,7 @@
  */ 
 #include "MCP4802.h"
 #include "spi.h"
-
+#include "IoMatrix.h"
 
 #define DAC_A				0
 #define DAC_B				1
@@ -17,9 +17,9 @@
 #define GAIN_X2				0
 #define GAIN_X1				1
 
-#define CHANNEL_ACTIVE		1
-#define CHANNEL_SHUTDOWN	0
-
+#define CHANNEL_ACTIVE			1
+#define CHANNEL_SHUTDOWN		0
+//-----------------------------------------------------------
 void mcp4802_init()
 {
 	//init SPI port
@@ -31,10 +31,8 @@ void mcp4802_init()
 	
 	// then set high (no write)
 	MCP_CS_PORT |= (1<<MCP_CS_PIN) | (1<<MCP_LDAC_PIN);
-	
-	
 };
-
+//-----------------------------------------------------------
 /*
 The write command is initiated by driving the CS pin
 low, followed by clocking the four Configuration bits and
@@ -70,13 +68,20 @@ void mcp4802_outputData(const uint8_t out1, const uint8_t out2)
 	
 	//data for output A
 	uint16_t data = (DAC_A<<15) | (GAIN_X2<<13) | (CHANNEL_ACTIVE<<12) | (out1<<4);
+	
+	//save COL_PORT
+	uint8_t port = COL_PORT;
+	COL_PORT |= ( (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) );
+	spi_enable(1);
 	SPI_transmit(data>>8);		//transmit MSB
 	SPI_transmit(data&0xff);	//transmit LSB
-
+	spi_enable(0);
+	COL_PORT = port;
 	
 	// CS high (end write)
 	MCP_CS_PORT |= (1<<MCP_CS_PIN);
 	
 	//LDAC low (update dac outputs, gate high)
 	MCP_CS_PORT &= ~(1<<MCP_LDAC_PIN);
+	//while(1);
 };

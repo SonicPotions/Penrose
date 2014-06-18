@@ -18,7 +18,8 @@
 							// using 2 bytes for the 12 bit note value results in 128 * 100.000cycles 
 							// => 12.800.000 cycles
 							// thats about 35 years with 1000 saves per day
-
+							
+//-----------------------------------------------------------
 static uint16_t dataBuffer[BUFFER_SIZE] EEMEM;		// place to store the note data
 static uint8_t statusBuffer[BUFFER_SIZE] EEMEM;		// place to keep the status info (next write position)
 static uint8_t currentEepromAddress = 0;
@@ -29,27 +30,25 @@ uint8_t findCurrentEepromAddr()
   uint8_t val1, val2, addr1, addr2;
   addr1 = 0x00;
   
-  //check if stausBuffer[addr] == stausBuffer[addr+1]+1
-  
   for(int i=0; i<BUFFER_SIZE; i++)
   {
     addr2 = ((addr1+1)&BUFFER_MASK);
     val1 = eeprom_read_byte(&statusBuffer[addr1]);
     val2 = eeprom_read_byte(&statusBuffer[addr2]);
     
-     if( (val1+1) == val2)
+     if( ((val1+1)&0xff) == val2)
      {
        //move on
        addr1++;
        
      } else
      {
-       //next write occurs here
-       return addr2;
+       //this is the last used address
+       return addr1;
      }
   }
   //we should never get here...
-  return addr2;
+  return addr1;
 }
 //-----------------------------------------------------------
 /*
@@ -87,8 +86,5 @@ void eeprom_WriteBuffer(uint16_t data)
   //increment and store status buffer value
    status = (status+1)&BUFFER_MASK;
    eeprom_write_byte(&statusBuffer[currentEepromAddress],status);
-   
-   return;
 }
 //-----------------------------------------------------------
-
