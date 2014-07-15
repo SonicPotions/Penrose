@@ -119,7 +119,7 @@ uint8_t quantizeValue(uint16_t input)
 	uint8_t quantValue = ((input<<1)+8)/17;//ADC_STEPS_PER_NOTE;
 
 	//calculate the current active step
-	const uint8_t octave = quantValue/12;
+	uint8_t octave = quantValue/12;
 	uint8_t note = quantValue-(octave*12);
 
 	
@@ -131,11 +131,19 @@ uint8_t quantizeValue(uint16_t input)
 	  if( ((1<<  ((note+i)%12) ) & io_getActiveSteps()) != 0) break;
 	}
 	
+	/*
 	if(i!=12)
 	{
 	  note = note+i;
 	  note %= 12;
 	}	
+	*/
+	note = note+i;
+	if(note>=12)
+	{
+	  note -= 12;
+	  octave++;
+	}
 	
 	quantValue = octave*12+note;
 	

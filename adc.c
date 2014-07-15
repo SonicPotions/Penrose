@@ -8,8 +8,6 @@
 #include "adc.h"
 #include <avr/interrupt.h>  
 
-static int16_t adc_offset;
-static uint16_t adc_gain;
 //-----------------------------------------------------------
 void adc_init(void)
 {
