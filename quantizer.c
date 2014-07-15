@@ -162,8 +162,10 @@ int main(void)
     while(1)
     {
 	//handle IOs (buttons + LED)		
-	io_processButtons();
-	io_processLed();	
+	//io_processButtons();
+	io_processButtonsPipelined();
+	//io_processLed();	
+	io_processLedPipelined();
 
 	checkAutosave();
 	if( !GATE_IN_CONNECTED )

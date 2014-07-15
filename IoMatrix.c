@@ -167,6 +167,26 @@ void io_processLed()
   }
 };
 //-----------------------------------------------------------
+static uint8_t ledState = 0;
+void io_processLedPipelined()
+{
+  turnAllLedsOff();
+
+  if(ledState==io_activeStep)
+  {
+    //this step is currently played => set color 1
+    turnLedOn(ledState,0);
+  } 
+  else if ( (io_ledState & (1<<ledState)) > 0)
+  {
+    //step is active => colour 2
+    turnLedOn(ledState,1);
+  }
+  
+  ledState++;
+  if(ledState>=12) ledState=0;
+};
+//-----------------------------------------------------------
 //read button matrix 
 void io_processButtons()
 {
@@ -223,6 +243,85 @@ void io_processButtons()
 	  }
 	}
 };
+//-----------------------------------------------------------
+static uint8_t buttonRowIndex = 0;
+static uint8_t buttonColIndex = 0;
+static uint8_t ledNr = 0;
+
+void io_processButtonsPipelined()
+{
+	//uint8_t col;
+	//uint8_t row;
+	uint8_t i= ledNr;//buttonColIndex + buttonRowIndex; //0
+	uint16_t val;
+	
+	//for(row=0;row<3;row++)
+	{
+	  //for(col=0;col<4;col++)
+	  {
+		//all columns on
+		COL_PORT |= ( (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) );
+		//pin low for active column
+		COL_PORT &= ~(1<<buttonColIndex);
+		
+		//read active row input
+		switch(buttonRowIndex)
+		{
+		  default:
+		  case 0:
+		      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW1_PIN) ) == 0;
+		      break;
+		  
+		  case 1:
+		      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW2_PIN) ) == 0;
+		      break;
+		    
+		  case 2:
+		      val = (SWITCH_INPUT_3 & (1<<SWITCH_ROW3_PIN) ) == 0;
+		      break;
+		}
+	    
+		//check if the button changed its state since the last call
+		if(   (io_lastButtonState&(1<<i))   != (val<<i)   )
+		{
+			//update state memory
+			io_lastButtonState &= ~(1<<i);
+			io_lastButtonState |=val<<i;
+			//toggle LED
+			if(val)
+			{
+			  timer_touchAutosave();
+			  if(!(io_ledState&(1<<i)))
+			  {
+			    io_ledState |= 1<<i;
+			  } else 
+			  {
+			    io_ledState &= ~(1<<i);
+			  }
+			}
+		}
+		
+	  }
+	}
+	
+	ledNr++;
+	
+	 buttonColIndex++;
+	if(buttonColIndex>=4)
+	{
+	  buttonColIndex=0;
+	  buttonRowIndex++;
+	  if(buttonRowIndex>=3)
+	  {
+	    buttonRowIndex=0;
+	    ledNr = 0;
+	  
+	  }
+	}
+	   
+	
+	
+}
 //-----------------------------------------------------------
 uint8_t io_isButtonPushed(uint8_t buttonNr)
 {

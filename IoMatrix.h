@@ -48,8 +48,12 @@
 void io_init();
 //one circle trough the whole LED matrix
 void io_processLed();
+
+void io_processLedPipelined();
 //scan all buttons
 void io_processButtons();
+void io_processButtonsPipelined();
+
 uint16_t io_getActiveSteps();
 void io_setActiveSteps(uint16_t val);
 void io_setCurrentQuantizedValue(uint8_t value);
