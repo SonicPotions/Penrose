@@ -131,13 +131,6 @@ uint8_t quantizeValue(uint16_t input)
 	  if( ((1<<  ((note+i)%12) ) & io_getActiveSteps()) != 0) break;
 	}
 	
-	/*
-	if(i!=12)
-	{
-	  note = note+i;
-	  note %= 12;
-	}	
-	*/
 	note = note+i;
 	if(note>=12)
 	{
@@ -162,9 +155,7 @@ int main(void)
     while(1)
     {
 	//handle IOs (buttons + LED)		
-	//io_processButtons();
 	io_processButtonsPipelined();
-	//io_processLed();	
 	io_processLedPipelined();
 
 	checkAutosave();
