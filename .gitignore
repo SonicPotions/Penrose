@@ -1,0 +1,63 @@
+# Object files
+*.o
+*.d
+*.lst
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+!FirmwareImageBuilder.exe
+*.out
+*.app
+
+#except this tool
+!tools/bin/FirmwareImageBuilder.exe
+
+# binaries
+*.hex
+*.elf
+*.bin
+*.lss
+
+!firmware image/FIRMWARE.BIN
+
+#eclipse staging areas
+mainboard/firmware/DrumSynth_FPU/Debug/
+mainboard/firmware/DrumSynth_FPU/Release/
+front/AVR/Debug/
+front/AVR/Release/
+
+# miscellaneous eclipse etc
+*.metadata
+*RemoteSystemsTempFiles
+*.settings
+*.bak
+*.svn
+*.map
+*.html
+*.rar
+*.zip
+*.wav
+
+# visual studio stuff
+*.pdb
+*.ncb
+*.suo
+*.ilk
+*.manifest
+*.obj
+*.pch
+*.idb
+*.user
+*.res
+*.dep
+*.htm
