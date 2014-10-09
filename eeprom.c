@@ -84,7 +84,9 @@ void eeprom_WriteBuffer(uint16_t data)
    eeprom_write_word(&dataBuffer[currentEepromAddress], data);
   
   //increment and store status buffer value
-   status = (status+1)&BUFFER_MASK;
+   //status = (status+1)&BUFFER_MASK;
+   status += 1;//(status+1)&BUFFER_MASK;
+   
    eeprom_write_byte(&statusBuffer[currentEepromAddress],status);
 }
 //-----------------------------------------------------------
