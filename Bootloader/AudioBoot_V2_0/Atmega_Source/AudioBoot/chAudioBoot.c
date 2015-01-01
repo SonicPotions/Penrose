@@ -13,15 +13,15 @@
     You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
 
 ##################################################################################################################################
-
+*/
 
 #define ATMEGA168_MICROCONTROLLER
 //#define ATMEGA8_MICROCONTROLLER
 
 
 
-//***************************************************************************************
-/*
+/***************************************************************************************
+
 	AudioBoot - flashing a microcontroller by PC audio line out 
 				This version is with differential manchester coding
 
@@ -129,9 +129,9 @@ uint8_t FrameData[FRAMESIZE];
 //***************************************************************************************
 uint8_t receiveFrame()
 {
-  uint16_t store[16];
+  //uint16_t store[16];
 
-  uint16_t counter=0;
+  //uint16_t counter=0;
   volatile uint16_t time=0;
   volatile uint16_t delayTime;
   uint8_t p,t;
@@ -156,7 +156,7 @@ uint8_t receiveFrame()
 	TIMER=0; // reset timer
     p=PINVALUE;
 
-	store[counter++]=t;
+	//store[counter++]=t;
 
     if(n>=8)time+=t; // time accumulator for mean period calculation only the last 8 times are used 
   }
@@ -179,7 +179,7 @@ uint8_t receiveFrame()
     while(TIMER<delayTime);
 	TIMER=0;
 
-    counter++;
+    //counter++;
   }
   p=PINVALUE;
   //****************************************************************
@@ -197,7 +197,7 @@ uint8_t receiveFrame()
 	
 	t=PINVALUE;
 
-    counter++;
+    //counter++;
     
     FrameData[dataPointer]=FrameData[dataPointer]<<1;
     if(p!=t) FrameData[dataPointer]|=1;
@@ -331,6 +331,7 @@ void a_main()
 {
   uint8_t timeout = 10;
   
+  
   while(1)
   {
     if(io_isButtonPushed() )
@@ -356,13 +357,20 @@ void a_main()
   
 
 
-  uint8_t p=0;
+  
   #define WAITBLINKTIME 1000
-  uint16_t time=WAITBLINKTIME;
+  uint8_t p;
+  uint16_t time;
+  uint8_t exitcounter;
+  
+RESTART:
+
+  p=0;
+  time=WAITBLINKTIME;
   //uint8_t timeout=6;
  
   //*************** wait for toggling input pin or timeout ******************************
-  uint8_t exitcounter=3;
+  exitcounter=3;
   while(1)
   {  
 
@@ -404,18 +412,12 @@ void a_main()
       while(1)
       {   
 	ledOn(RED); //=> error, RED LED
-	/*
-        if(TIMER>100)  // timerstop ==> frequency @16MHz= 16MHz/8/100=20kHz
-        {
-           TIMER=0;
-           time--;
-           if(time==0)
-           {
-             TOGGLELED;
-             time=1000;
-           }
-        }
-        */
+	
+	if(io_isButtonPushed())
+	{
+	  goto RESTART; 
+	}
+	
       }
     }
     else // succeed
