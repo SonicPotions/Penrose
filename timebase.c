@@ -1,11 +1,27 @@
 /*
  * timebase.c
  *
- * Created: 15.06.2013 8:47
- *  Author: Julian Schmidt
- * 
  * contains timer functions for autosave and gate length
- */ 
+ * 
+ * 
+ *  Copyright 2015 Julian Schmidt, Sonic Potions <julian@sonic-potions.com>
+ *  Web: www.sonic-potions.com/penrose
+ * 
+ *  This file is part of the Penrose Quantizer Firmware.
+ *
+ *  The Penrose Quantizer Firmware is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The Penrose Quantizer Firmware is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the Penrose Quantizer Firmware.  If not, see <http://www.gnu.org/licenses/>.
+ */  
 
 
 #include "timebase.h"
@@ -26,15 +42,13 @@ ISR (TIMER0_COMPA_vect)
 //-----------------------------------------------------------
 void timer_init()
 {
-    // Timer 0 configuration
+  // Timer 0 configuration
   TCCR0A = (1<<WGM01); // CTC Mode
-  // TCCR0B |= (1<<CS02) | (1<<CS00); // Prescaler 1024
-  // ((20.000.000/1024)/1000) = 19,53125
-  OCR0A = 20 * GATE_LENGTH; // => 0,9765625ms
+  OCR0A = 20 * GATE_LENGTH;
   // Enabel Compare Interrupt 
   TIMSK0 |= (1<<OCIE0A);
   
-    // Timer 1 (16-bit) configuration
+  // Timer 1 (16-bit) configuration
   TCCR1B |= (1<<CS12) | (1<<CS10); //prescaler 1024
   // 20.000.000 / 1024 = 19531,25 = 1 sec
   TCCR1B |= (1<<WGM12); // CTC Modus

@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # Makefile for Audio Bootloader Wavegenerator hex2wav
-# Author: Julian Schmidt
+# Author: Patrick Dowling, Julian Schmidt
 #
 #
 ###############################################################################
@@ -57,18 +57,14 @@ ELF=$(OBJDIR)hex2wav
 OBJFILES = $(addprefix $(OBJDIR),$(notdir $(CCSRCFILES:.cpp=.o)))
 
 # Project defines
-#DEFINES += -DF_CPU=20000000UL -D__PROG_TYPES_COMPAT__
-
 
 CFLAGS += $(DEFINES) $(INCLUDES)
 CFLAGS += -O$(OPTIMIZE)
-#CFLAGS += -Wall -Wextra -Wconversion -c -funsigned-char -funsigned-bitfields -ffast-math -freciprocal-math -ffunction-sections -fdata-sections -fpack-struct -fshort-enums
 CFLAGS += -Wall  -ggdb -c -funsigned-char -funsigned-bitfields -ffast-math -freciprocal-math -ffunction-sections -fdata-sections -fshort-enums
 ifeq ($(PEDANTIC),1)
 CFLAGS += -Werror
 endif
 CFLAGS +=  -MD -MP
-#LDFLAGS += -Wl,-Map=$(MAP) -Wl,--start-group -Wl,-lm  -Wl,--end-group -Wl,-gc-sections 
 
 ###############################################################################
 # TARGETS
@@ -77,7 +73,7 @@ CFLAGS +=  -MD -MP
 .PHONY: all
 all:
 	@echo "Valid targets are"
-	@echo " avr : build AVR firmware"
+	@echo " binary : build program"
 	@echo " clean : clean build directory"
 	@echo " printenv : print some debug variables"
 	@echo " printfiles : print list of files that would be compiled"
@@ -109,8 +105,8 @@ printfiles:
 	@echo "$(ASSRCFILES)"
 	@echo ""
 
-.PHONY: avr
-avr: $(BINARY)
+.PHONY: binary
+binary: $(BINARY)
 
 $(ELF): $(OBJFILES)
 	@echo "Linking $@..."

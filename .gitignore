@@ -23,7 +23,7 @@
 !tools/bin/FirmwareImageBuilder.exe
 
 # binaries
-*.hex
+#*.hex
 *.elf
 *.bin
 *.lss

@@ -1,9 +1,25 @@
 /*
  * IoMatrix.c
  *
- * Created: 14.06.2013 21:07:52
- *  Author: Julian
+ *  Copyright 2015 Julian Schmidt, Sonic Potions <julian@sonic-potions.com>
+ *  Web: www.sonic-potions.com/penrose
+ * 
+ *  This file is part of the Penrose Quantizer Firmware.
+ *
+ *  The Penrose Quantizer Firmware is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The Penrose Quantizer Firmware is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the Penrose Quantizer Firmware.  If not, see <http://www.gnu.org/licenses/>.
  */ 
+
 #include "IoMatrix.h"
 #include <util/delay.h>
 #include <avr/pgmspace.h> 
@@ -250,63 +266,54 @@ static uint8_t ledNr = 0;
 
 void io_processButtonsPipelined()
 {
-	//uint8_t col;
-	//uint8_t row;
-	uint8_t i= ledNr;//buttonColIndex + buttonRowIndex; //0
+	uint8_t i= ledNr;
 	uint16_t val;
+	  
+	//all columns on
+	COL_PORT |= ( (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) );
+	//pin low for active column
+	COL_PORT &= ~(1<<buttonColIndex);
 	
-	//for(row=0;row<3;row++)
+	//read active row input
+	switch(buttonRowIndex)
 	{
-	  //for(col=0;col<4;col++)
-	  {
-		//all columns on
-		COL_PORT |= ( (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) );
-		//pin low for active column
-		COL_PORT &= ~(1<<buttonColIndex);
-		
-		//read active row input
-		switch(buttonRowIndex)
-		{
-		  default:
-		  case 0:
-		      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW1_PIN) ) == 0;
-		      break;
-		  
-		  case 1:
-		      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW2_PIN) ) == 0;
-		      break;
-		    
-		  case 2:
-		      val = (SWITCH_INPUT_3 & (1<<SWITCH_ROW3_PIN) ) == 0;
-		      break;
-		}
+	  default:
+	  case 0:
+	      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW1_PIN) ) == 0;
+	      break;
+	  
+	  case 1:
+	      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW2_PIN) ) == 0;
+	      break;
 	    
-		//check if the button changed its state since the last call
-		if(   (io_lastButtonState&(1<<i))   != (val<<i)   )
+	  case 2:
+	      val = (SWITCH_INPUT_3 & (1<<SWITCH_ROW3_PIN) ) == 0;
+	      break;
+	}
+    
+	//check if the button changed its state since the last call
+	if(   (io_lastButtonState&(1<<i))   != (val<<i)   )
+	{
+		//update state memory
+		io_lastButtonState &= ~(1<<i);
+		io_lastButtonState |=val<<i;
+		//toggle LED
+		if(val)
 		{
-			//update state memory
-			io_lastButtonState &= ~(1<<i);
-			io_lastButtonState |=val<<i;
-			//toggle LED
-			if(val)
-			{
-			  timer_touchAutosave();
-			  if(!(io_ledState&(1<<i)))
-			  {
-			    io_ledState |= 1<<i;
-			  } else 
-			  {
-			    io_ledState &= ~(1<<i);
-			  }
-			}
+		  timer_touchAutosave();
+		  if(!(io_ledState&(1<<i)))
+		  {
+		    io_ledState |= 1<<i;
+		  } else 
+		  {
+		    io_ledState &= ~(1<<i);
+		  }
 		}
-		
-	  }
 	}
 	
 	ledNr++;
 	
-	 buttonColIndex++;
+	buttonColIndex++;
 	if(buttonColIndex>=4)
 	{
 	  buttonColIndex=0;
@@ -315,12 +322,8 @@ void io_processButtonsPipelined()
 	  {
 	    buttonRowIndex=0;
 	    ledNr = 0;
-	  
 	  }
 	}
-	   
-	
-	
 }
 //-----------------------------------------------------------
 uint8_t io_isButtonPushed(uint8_t buttonNr)

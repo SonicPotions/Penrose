@@ -1,13 +1,27 @@
 /*
- * 	Sonic Potions Quantizer Module 
- * 	LED Matrix Functions
- * 	by Julian Schmidt 2014 
+ *  Sonic Potions Quantizer Module 
+ *  LED Matrix Functions
  * 
- *	This program is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
+ *  Copyright 2015 Julian Schmidt, Sonic Potions <julian@sonic-potions.com>
+ *  Web: www.sonic-potions.com/penrose
+ * 
+ *  This file is part of the Penrose Quantizer Firmware.
+ *
+ *  The Penrose Quantizer Firmware is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The Penrose Quantizer Firmware is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the Penrose Quantizer Firmware.  If not, see <http://www.gnu.org/licenses/>.
  */ 
+
+ 
 
 #include "IoMatrix.h"
 #include <util/delay.h>
@@ -29,22 +43,6 @@ led	pin A	Pin B
 10	4	6
 11	5	6
 */
-/*
-static const uint8_t ledPinArray[12][2] PROGMEM = {
-  {LED_1_PIN,LED_2_PIN},
-  {LED_1_PIN,LED_3_PIN},
-  {LED_1_PIN,LED_4_PIN},
-  {LED_2_PIN,LED_3_PIN},
-  {LED_2_PIN,LED_4_PIN},
-  {LED_2_PIN,LED_5_PIN},
-  {LED_3_PIN,LED_4_PIN},
-  {LED_3_PIN,LED_5_PIN},
-  {LED_3_PIN,LED_6_PIN},
-  {LED_4_PIN,LED_5_PIN},
-  {LED_4_PIN,LED_6_PIN},
-  {LED_5_PIN,LED_6_PIN},
-};
-*/
 //-----------------------------------------------------------
 void io_init()
 {
@@ -62,7 +60,6 @@ void io_init()
   //all buttown columns as outs, state high
   COL_DDR |= (1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN);
   COL_PORT |= ((1<<COL1_PIN) | (1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN));
-  
   
   DDRB |= (1<<PB1); //gate = output
   PORTB |= (1<<PB1);
@@ -82,10 +79,8 @@ void turnAllLedsOff()
 //-----------------------------------------------------------
 void turnLedOn(uint8_t colour)
 {
-
   uint8_t pinA = LED_1_PIN;
   uint8_t pinB = LED_2_PIN;
-
   
   if(colour)
   {
@@ -109,8 +104,7 @@ void turnLedOn(uint8_t colour)
 //-----------------------------------------------------------
 uint8_t io_isButtonPushed() //checks button 0
 {
-  //const uint8_t row = 0;//buttonNr/4; // [0:2]
-  const uint8_t col = 0;//buttonNr%4; // [0:3]
+  const uint8_t col = 0;
 
   //all columns on
   COL_PORT |=  ((1<<COL2_PIN) | (1<<COL3_PIN) | (1<<COL4_PIN) );
@@ -119,24 +113,8 @@ uint8_t io_isButtonPushed() //checks button 0
   
   //read active row input
   uint8_t val = 0;
-  /*
-  switch(row)
-  {
-  case 0:
-    */
-      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW1_PIN) ) == 0;
-      /*
-      break;
 
-  case 1:
-      val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW2_PIN) ) == 0;
-      break;
-    
-  case 2:
-      val = (SWITCH_INPUT_3 & (1<<SWITCH_ROW3_PIN) ) == 0;
-      break;
-  }
-  */
+  val = (SWITCH_INPUT_12 & (1<<SWITCH_ROW1_PIN) ) == 0;
   
   return val;
 }

@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # Makefile for Quantizer AVR Audio Bootloader
-# Author: Julian Schmidt
+# Author: Patrick Dowling, Julian Schmidt
 #
 #
 ###############################################################################
@@ -50,11 +50,6 @@ SRCDIR=.
 CCSRCFILES  = $(shell find $(SRCDIR) -type f -name "*.c" | grep -v '/\.')
 
 vpath %.c ./
-#vpath %.c ./Hardware
-#vpath %.c ./Hardware/SD
-#vpath %.c ./IO
-#vpath %.c ./Menu
-#vpath %.c ./Preset
 
 ###############################################################################
 # SETUP

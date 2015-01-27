@@ -1,16 +1,27 @@
 /*
  * Source code simplified and adapted to Sonic Potions Quantizer Module by Julian Schmidt 2014 
- * Original code by Christoph Haberer 2011 (see below)
+ * Original code by Christoph Haberer 2011 (see old release notes below)
  * 
 ##################################################################################################################################
     AVR Audio Bootloader
-    Copyright (C) 2014  Julian Schmidt / Sonic Potions / julian@sonic-potions.com
 
-    This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
+ *  Copyright 2015 Julian Schmidt, Sonic Potions <julian@sonic-potions.com>
+ *  Web: www.sonic-potions.com/penrose
+ * 
+ *  This file is part of the Penrose Quantizer Firmware.
+ *
+ *  The Penrose Quantizer Firmware is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The Penrose Quantizer Firmware is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the Penrose Quantizer Firmware.  If not, see <http://www.gnu.org/licenses/>.
 
 ##################################################################################################################################
 */
@@ -21,6 +32,8 @@
 
 
 /***************************************************************************************
+#################### old, original release notes from c. haberer: ######################
+****************************************************************************************
 
 	AudioBoot - flashing a microcontroller by PC audio line out 
 				This version is with differential manchester coding
@@ -82,15 +95,11 @@
 	#define INPUTAUDIOPIN (1<<PD7)
 	#define PINVALUE (PIND&INPUTAUDIOPIN)
 
-	//#define INITPORT {PORTC|=INPUTAUDIOPIN;} //turn on pull up 
-
 	#define PINLOW (PINVALUE==0)
 	#define PINHIGH (!PINLOW)
 
-
 	#define true (1==1)
 	#define false !true
-
 
 //***************************************************************************************
 // main loop
@@ -103,9 +112,9 @@
 #define PAGEINDEXLOW 	1  // page address lower part
 #define PAGEINDEXHIGH 	2  // page address higher part
 #define CRCLOW          3  // checksum lower part 
-#define CRCHIGH 		4  // checksum higher part 
+#define CRCHIGH 	4  // checksum higher part 
 #define DATAPAGESTART   5  // start of data
-#define PAGESIZE 		128
+#define PAGESIZE 	128
 #define FRAMESIZE       (PAGESIZE+DATAPAGESTART)// size of the data block to be received
 
 // bootloader commands
@@ -129,9 +138,6 @@ uint8_t FrameData[FRAMESIZE];
 //***************************************************************************************
 uint8_t receiveFrame()
 {
-  //uint16_t store[16];
-
-  //uint16_t counter=0;
   volatile uint16_t time=0;
   volatile uint16_t delayTime;
   uint8_t p,t;
@@ -151,12 +157,10 @@ uint8_t receiveFrame()
   for(n=0;n<16;n++)
   {
     // wait for edge
-	while(p==PINVALUE);
-	t=TIMER;
-	TIMER=0; // reset timer
+    while(p==PINVALUE);
+    t=TIMER;
+    TIMER=0; // reset timer
     p=PINVALUE;
-
-	//store[counter++]=t;
 
     if(n>=8)time+=t; // time accumulator for mean period calculation only the last 8 times are used 
   }
@@ -165,21 +169,17 @@ uint8_t receiveFrame()
   // delay 3/4 bit
   while(TIMER<delayTime);
 
-  //p=1;
-  
   //****************** wait for start bit ***************************
   while(p==PINVALUE) // while not startbit ( no change of pinValue means 0 bit )
   {
     // wait for edge
-	while(p==PINVALUE);
+    while(p==PINVALUE);
     p=PINVALUE;
-	TIMER=0;
+    TIMER=0;
 
     // delay 3/4 bit
     while(TIMER<delayTime);
-	TIMER=0;
-
-    //counter++;
+    TIMER=0;
   }
   p=PINVALUE;
   //****************************************************************
@@ -187,25 +187,24 @@ uint8_t receiveFrame()
   k=8;
   for(n=0;n<(FRAMESIZE*8);n++)
   {
-	// wait for edge
-	while(p==PINVALUE);
-    TIMER=0;
-	p=PINVALUE;
+      // wait for edge
+      while(p==PINVALUE);
+      TIMER=0;
+      p=PINVALUE;
     
-    // delay 3/4 bit
-    while(TIMER<delayTime);
+      // delay 3/4 bit
+      while(TIMER<delayTime);
 	
-	t=PINVALUE;
+      t=PINVALUE;
 
-    //counter++;
-    
-    FrameData[dataPointer]=FrameData[dataPointer]<<1;
-    if(p!=t) FrameData[dataPointer]|=1;
-	p=t;
-    k--;
-    if(k==0){dataPointer++;k=8;};
+      FrameData[dataPointer]=FrameData[dataPointer]<<1;
+      if(p!=t) FrameData[dataPointer]|=1;
+	  p=t;
+      k--;
+      if(k==0){dataPointer++;k=8;};
   }
-    uint16_t crc=(uint16_t)FrameData[CRCLOW]+FrameData[CRCHIGH]*256;
+  
+  uint16_t crc=(uint16_t)FrameData[CRCLOW]+FrameData[CRCHIGH]*256;
 
   if(crc==0x55AA) return true;
   else return false;
@@ -221,8 +220,7 @@ uint8_t receiveFrame()
 //***************************************************************************************
 void boot_program_page (uint32_t page, uint8_t *buf)
 {
-	uint16_t i;
-  
+    uint16_t i;
     cli(); // disable interrupts
 
     boot_page_erase (page);
@@ -276,14 +274,6 @@ void runProgramm(void)
 	TCCR2B=0; // turn off timer2
 #endif
 
-/*
-	// start user programm
-	asm volatile(		
-	"clr r30	\n\t"
-	"clr r31	\n\t"	// z Register mit Adresse laden
-	"ijmp		\n\t"	// z Register mit Adresse laden
-	);
-	*/
 start();
 }
 
@@ -347,17 +337,9 @@ void a_main()
     
   }
   
-
-  
-  
   //button is pushed, start bootloader
-  
-
   initstart();
-  
-
-
-  
+ 
   #define WAITBLINKTIME 1000
   uint8_t p;
   uint16_t time;
@@ -367,7 +349,6 @@ RESTART:
 
   p=0;
   time=WAITBLINKTIME;
-  //uint8_t timeout=6;
  
   //*************** wait for toggling input pin or timeout ******************************
   exitcounter=3;
@@ -382,16 +363,6 @@ RESTART:
        {
          ledToggle(RED);
 	 time=WAITBLINKTIME;
-    /*
-	 timeout--;
-         if(timeout==0)
-         {
-
-           LEDOFF; // timeout,
-           // leave bootloader and run program
-	   runProgramm();
-         }
-         */
        }
     }
     if(p!=PINVALUE)
@@ -417,7 +388,6 @@ RESTART:
 	{
 	  goto RESTART; 
 	}
-	
       }
     }
     else // succeed
@@ -432,9 +402,8 @@ RESTART:
         break;
         case RUNCOMMAND:
         {
-		//setExternalPort(2);
           // leave bootloader and run program
-		runProgramm();
+	  runProgramm();
         }
         break;
         case PROGCOMMAND:
@@ -463,8 +432,7 @@ RESTART:
 
 int main()
 {
-//		INITPORT; 
-	DDRD &= ~(1<<PD7); //input
-	io_init();
-	a_main(); // start the main function
+  DDRD &= ~(1<<PD7); //input
+  io_init();
+  a_main(); // start the main function
 }

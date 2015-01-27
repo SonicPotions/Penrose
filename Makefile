@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # Makefile for LXR AVR firmware
-# Author: Patrick Dowling
+# Author: Patrick Dowling, Julian Schmidt
 #
 # Requires either
 # * AVR compiler (avr-gcc et al) in path, or
@@ -53,11 +53,6 @@ SRCDIR=.
 CCSRCFILES  = $(shell find $(SRCDIR) -type f -name "*.c" | grep -v '/\.')
 
 vpath %.c ./
-#vpath %.c ./Hardware
-#vpath %.c ./Hardware/SD
-#vpath %.c ./IO
-#vpath %.c ./Menu
-#vpath %.c ./Preset
 
 ###############################################################################
 # SETUP
@@ -72,16 +67,8 @@ OBJFILES = $(addprefix $(OBJDIR),$(notdir $(CCSRCFILES:.c=.o)))
 # Project defines
 DEFINES += -DF_CPU=20000000UL -D__PROG_TYPES_COMPAT__
 
-# Include directories
-#INCLUDES += -I"./Hardware"
-#INCLUDES += -I"./Hardware/SD"
-#INCLUDES += -I"./IO"
-#INCLUDES += -I"./Menu"
-#INCLUDES += -I"./Preset"
-
 CFLAGS += $(DEFINES) $(INCLUDES)
 CFLAGS += -O$(AVR_OPTIMIZE)
-#CFLAGS += -Wall -Wextra -Wconversion -c -funsigned-char -funsigned-bitfields -ffast-math -freciprocal-math -ffunction-sections -fdata-sections -fpack-struct -fshort-enums
 CFLAGS += -Wall -Wextra -c -funsigned-char -funsigned-bitfields -ffast-math -freciprocal-math -ffunction-sections -fdata-sections -fpack-struct -fshort-enums
 ifeq ($(PEDANTIC),1)
 CFLAGS += -Werror

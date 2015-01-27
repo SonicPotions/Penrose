@@ -1,12 +1,31 @@
 /*
  * MCP4802.c
  *
- * Created: 14.06.2013 15:58:55
- *  Author: Julian Schmidt
- * 
- * Driver works for MCP4801 and 4802
+ * Driver works for MCP4801 
+ * the prototype used a 4802, but channel 2 is not implemented yet 
+ * since the final hardware version never used it and a 4801 was used instead
  * needs minor mods for propper 2 channel output
+ * 
+ * 
+ *  Copyright 2015 Julian Schmidt, Sonic Potions <julian@sonic-potions.com>
+ *  Web: www.sonic-potions.com/penrose
+ * 
+ *  This file is part of the Penrose Quantizer Firmware.
+ *
+ *  The Penrose Quantizer Firmware is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The Penrose Quantizer Firmware is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the Penrose Quantizer Firmware.  If not, see <http://www.gnu.org/licenses/>.
  */ 
+ 
 #include "MCP4802.h"
 #include "spi.h"
 #include "IoMatrix.h"
@@ -28,7 +47,6 @@ void mcp4802_init()
 	//pin init 
 	MCP_CS_DDR  |= (1<<MCP_CS_PIN) | (1<<MCP_LDAC_PIN); //CS pin as output, LDAC pin as output
 	
-	
 	// then set high (no write)
 	MCP_CS_PORT |= (1<<MCP_CS_PIN) | (1<<MCP_LDAC_PIN);
 };
@@ -44,7 +62,7 @@ bit 15 A/B:DAC A or DAC B Selection bit
 1= Write to DACB
 0= Write to DACA
 
-bit 14 — Don’t Care 
+bit 14  Don't Care 
 
 bit 13 GA:Output Gain Selection bit
 1=1x (VOUT= VREF* D/4096)
@@ -83,5 +101,4 @@ void mcp4802_outputData(const uint8_t out1, const uint8_t out2)
 	
 	//LDAC low (update dac outputs, gate high)
 	MCP_CS_PORT &= ~(1<<MCP_LDAC_PIN);
-	//while(1);
 };

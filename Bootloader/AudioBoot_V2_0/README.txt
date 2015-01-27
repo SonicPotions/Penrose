@@ -1,15 +1,27 @@
 
-##################################################################################################################################
+#############################################################################################
     AVR Audio Bootloader
-    Copyright (C) 2014  Julian Schmidt / Sonic Potions / julian@sonic-potions.com
+    
+    Copyright 2015 Julian Schmidt, Sonic Potions <julian@sonic-potions.com>
+    based on code by Christoph Haberer copyright 2008-2012 AudioBoot_V2_0
+    
+   This file is part of the Penrose Quantizer Firmware.
+ 
+   The Penrose Quantizer Firmware is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+ 
+   The Penrose Quantizer Firmware is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+ 
+   You should have received a copy of the GNU General Public License
+   along with the Penrose Quantizer Firmware.  If not, see <http://www.gnu.org/licenses/>.
 
-    This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
-
-##################################################################################################################################
+##############################################################################################
 
 
 This package consists of 2 parts:
@@ -22,7 +34,7 @@ This bootloader is based on the AudioBoot_V2_0 bootloader by Christoph Haberer f
 His original post can be found here: http://www.hobby-roboter.de/forum/viewtopic.php?f=4&t=127
 
 The original java tools to generate the wav file were discarded and ported to C++ (I don't like java)
-The AVR code was adapted to work with a modified hardware (Sonic Potions Quantizer module)
+The AVR code was adapted to work with a modified hardware (Sonic Potions Penrose Quantizer module)
 
 Here is the original README text from AudioBoot_V2_0:
 
