@@ -1,5 +1,4 @@
-# Penrose
-Penrose eurorack Quantizer
+# Penrose Quantizer Firmware
 
 This is the sourcecode for the Sonic Potions Penrose Quantizer eurorack module.
 The project page with more information about the module can be found here: http://www.sonic-potions.com/penrose
