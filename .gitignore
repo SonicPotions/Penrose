@@ -46,7 +46,7 @@ front/AVR/Release/
 *.html
 *.rar
 *.zip
-*.wav
+#*.wav
 
 # visual studio stuff
 *.pdb
