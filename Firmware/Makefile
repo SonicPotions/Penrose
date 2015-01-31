@@ -84,9 +84,11 @@ LDFLAGS += -Wl,-Map=$(MAP) -Wl,--start-group -Wl,-lm  -Wl,--end-group -Wl,-gc-se
 all:
 	@echo "Valid targets are"
 	@echo " avr : build AVR firmware"
+	@echo " wav : build AVR firmware and generate bootloader wave file"
 	@echo " clean : clean build directory"
 	@echo " printenv : print some debug variables"
 	@echo " printfiles : print list of files that would be compiled"
+	
 
 .PHONY: clean
 clean:
@@ -127,6 +129,14 @@ $(BINARY): $(ELF)
 	$(AT)$(CP) -O ihex -R .eeprom -R .fuse -R .lock -R .signature $^ $@
 
 $(OBJFILES) : | $(OBJDIR)
+
+.PHONY: wav
+wav: penrose.wav
+
+penrose.wav: $(BINARY)
+	../Bootloader/AudioBoot_V2_0/c_source/hex2wav quantizer.hex penrose.wav
+
+
 
 ###############################################################################
 # BUILD RULES
