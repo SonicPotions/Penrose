@@ -29,6 +29,7 @@
 #include "timebase.h"
 #include <util/delay.h> 
 #include <avr/interrupt.h>  
+#include <stdlib.h>
 
 //-----------------------------------------------------------
 uint8_t quantizeValue(uint16_t input);
@@ -114,6 +115,7 @@ ISR(PCINT2_vect)
     return;	
 };
 //-----------------------------------------------------------
+static uint8_t lastInput=0;
 uint8_t quantizeValue(uint16_t input)
 {
   if(io_getActiveSteps()==0)
@@ -122,6 +124,11 @@ uint8_t quantizeValue(uint16_t input)
     io_setCurrentQuantizedValue(99); //no active step LED
     return 0;
   }
+  
+  if(abs(input-lastInput) >= 3)
+  {
+    lastInput = input;
+  } else return lastQuantValue;
   
 	//quantize input value to all steps
 	/* instead of input/ADC_STEPS_PER_NOTE we use the magic number 17 here.
