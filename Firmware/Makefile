@@ -134,7 +134,7 @@ $(OBJFILES) : | $(OBJDIR)
 wav: penrose.wav
 
 penrose.wav: $(BINARY)
-	../Bootloader/AudioBoot_V2_0/c_source/hex2wav quantizer.hex penrose.wav
+	../Bootloader/c_source/hex2wav quantizer.hex penrose.wav
 
 
 
