@@ -50,10 +50,10 @@ volatile uint8_t gateTimer = 0;
 
 #define INPUT_VOLTAGE			5.f	//Volt
 #define OCTAVES				10.f	//octaves
-#define VOLT_PER_OCTAVE			(INPUT_VOLTAGE/OCTAVES)
-#define VOLT_PER_NOTE			(VOLT_PER_OCTAVE/12.f)
-#define VOLT_PER_ADC_STEP		(INPUT_VOLTAGE/1024.f)
-#define ADC_STEPS_PER_NOTE		(VOLT_PER_NOTE/VOLT_PER_ADC_STEP) //~8.5
+#define VOLT_PER_OCTAVE			(INPUT_VOLTAGE/OCTAVES) // 0.5
+#define VOLT_PER_NOTE			(VOLT_PER_OCTAVE/12.f)  // 0.04166666666666666667
+#define VOLT_PER_ADC_STEP		(INPUT_VOLTAGE/1024.f)  // 0.0048828125
+#define ADC_STEPS_PER_NOTE		(VOLT_PER_NOTE/VOLT_PER_ADC_STEP) //~8.53
 
 
 #define GATE_IN_CONNECTED ((SWITCH_IN_PORT & (1<<SWITCH_PIN))==0)
@@ -95,7 +95,7 @@ void init()
 //-----------------------&= ------------------------------------
 void process()
 {
-	const uint8_t quantValue = quantizeValue(adc_read());
+	const uint8_t quantValue = quantizeValue(adc_read()+1);
 	//if the value changed
 	if(lastQuantValue != quantValue)
 	{
@@ -125,7 +125,7 @@ uint8_t quantizeValue(uint16_t input)
     return 0;
   }
   
-  if(abs(input-lastInput) >= 3)
+  if(abs(input-lastInput) >= 2)
   {
     lastInput = input;
   } else return lastQuantValue;
